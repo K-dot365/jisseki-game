@@ -13,9 +13,9 @@
       --muted: #8d99a6;
       --btn: #1e242b;
       --btn-hover: #28313a;
-      --accent: #4caf50;       /* 解放済みの緑 */
-      --accent-glow: #b3ffb8;  /* グローの外縁 */
-      --gold: #f4c542;         /* 実績っぽい金色 */
+      --accent: #4caf50;
+      --accent-glow: #b3ffb8;
+      --gold: #f4c542;
     }
     * { box-sizing: border-box; }
     html, body { height: 100%; }
@@ -26,7 +26,7 @@
     }
     .app { width: min(1100px, 96vw); }
 
-    header { display:flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    header { display:flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
     h1 { font-size: clamp(18px, 2.3vw, 24px); margin: 0; letter-spacing: .02em; }
     .controls { display:flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 
@@ -42,19 +42,17 @@
       border: 1px solid var(--border); border-radius: 16px; padding: 16px; position: relative;
     }
 
-    /* グリッドのレイアウト */
     .cells { display: grid; gap: 12px; }
 
-    /* セルのボタン */
     .cell { position: relative; }
     .cell button {
       width: 100%; aspect-ratio: 1 / 1; border-radius: 14px; cursor: pointer; position: relative; overflow: hidden;
       background: #0f1419; border: 1px solid #212932; box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
+      min-width: 44px; min-height: 44px;
     }
     .cell button .label { position: absolute; left: 10px; bottom: 8px; right: 10px; font-size: 12px; color: var(--muted); line-height: 1.2; }
     .cell button .badge { position: absolute; top: 8px; right: 8px; font-size: 11px; padding: 4px 8px; border-radius: 999px; background: #1b222a; border:1px solid #2a313a; color: var(--muted); }
 
-    /* 未解放の微細なタイル模様 */
     .cell button::before { content:""; position:absolute; inset:0; opacity:.18; background-image:
         linear-gradient(45deg, #0b0f13 25%, transparent 25%),
         linear-gradient(-45deg, #0b0f13 25%, transparent 25%),
@@ -62,13 +60,9 @@
         linear-gradient(-45deg, transparent 75%, #0b0f13 75%);
       background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0; }
 
-    /* 点灯アニメーション（解放時） */
     .cell button.lit {
       border-color: rgba(76, 175, 80, .7);
-      box-shadow:
-        0 0 0 1px rgba(76, 175, 80, .35),
-        0 4px 22px 0 rgba(76, 175, 80, .25),
-        inset 0 0 18px rgba(76, 175, 80, .25);
+      box-shadow: 0 0 0 1px rgba(76, 175, 80, .35), 0 4px 22px 0 rgba(76, 175, 80, .25), inset 0 0 18px rgba(76, 175, 80, .25);
       background: radial-gradient(120px 120px at 30% 20%, rgba(76,175,80,.20), transparent), #0f1419;
     }
     .cell button.lit::after {
@@ -78,22 +72,24 @@
     }
     @keyframes pulse { 0%{ opacity:.45 } 50%{ opacity:.1 } 100%{ opacity:.45 } }
 
-    /* 金縁（特別な実績） */
     .cell button.legendary { border-color: rgba(244,197,66,.7); }
     .cell button.legendary.lit {
-      box-shadow:
-        0 0 0 1px rgba(244,197,66,.45),
-        0 6px 26px 0 rgba(244,197,66,.35),
-        inset 0 0 22px rgba(244,197,66,.3);
+      box-shadow: 0 0 0 1px rgba(244,197,66,.45), 0 6px 26px 0 rgba(244,197,66,.35), inset 0 0 22px rgba(244,197,66,.3);
       background: radial-gradient(120px 120px at 30% 20%, rgba(244,197,66,.22), transparent), #0f1419;
     }
 
-    /* フッター */
     .footer { display:flex; justify-content: space-between; align-items: center; margin-top: 12px; color: var(--muted); font-size: 13px; }
     .count { font-variant-numeric: tabular-nums; }
 
-    /* レスポンシブ：列数はJSで切替えるが、最低サイズを確保 */
-    @media (max-width: 520px) { .cell button .label { font-size: 11px; } }
+    /* 📱 スマホ用調整 */
+    @media (max-width: 600px) {
+      body { padding: 12px; }
+      header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .controls { width: 100%; justify-content: flex-start; }
+      .cell button .label { font-size: 10px; }
+      .cell button .badge { font-size: 9px; padding: 2px 6px; }
+      h1 { font-size: 16px; }
+    }
   </style>
 </head>
 <body>
@@ -101,13 +97,12 @@
     <header>
       <h1>マインクラフト風・実績グリッド（クリックで点灯）</h1>
       <div class="controls">
-        <label class="control" title="行 x 列">
-          サイズ：
+        <label class="control">サイズ：
           <input id="rows" type="number" min="1" max="12" value="4" style="width:4.5em; margin-left:.5em;">
           ×
           <input id="cols" type="number" min="1" max="12" value="5" style="width:4.5em; margin-left:.5em;">
         </label>
-        <select id="preset" title="プリセットを読み込み">
+        <select id="preset">
           <option value="">プリセット（例）</option>
           <option value="starter">スターター</option>
           <option value="adventure">アドベンチャー</option>
@@ -120,11 +115,11 @@
       </div>
     </header>
 
-    <section class="grid" aria-live="polite">
+    <section class="grid">
       <div id="cells" class="cells"></div>
       <div class="footer">
         <div class="count"><span id="litCount">0</span> / <span id="totalCount">0</span> 解放</div>
-        <div class="hint">セルをクリック（またはスペース/Enter）で点灯/消灯</div>
+        <div class="hint">セルをクリックで点灯/消灯</div>
       </div>
     </section>
   </div>
@@ -141,48 +136,20 @@
     const litCountEl = document.getElementById('litCount');
     const totalCountEl = document.getElementById('totalCount');
 
-    // ラベルのプリセット例
     const PRESETS = {
-      starter: {
-        size:[3,4],
-        labels:[
-          '木を殴れ！','作業台','木のツール','ベッド',
-          'かまど','石のツール','たいまつ','食料を確保',
-          '石炭ゲット','革の装備','釣り','ネザーへ…?'
-        ],
-        legendary:[0, 11]
-      },
-      adventure: {
-        size:[4,5],
-        labels:[
-          '旅の始まり','地図を作成','村を発見','交易','ピリジャー撃退',
-          'ネザー要塞','ブレイズロッド','エンダーパール','要塞発見','ポータル起動',
-          'エンドへ','クリスタル破壊','帰還','エリトラ入手','ビーコン'
-        ],
-        legendary:[10, 14]
-      },
-      builder: {
-        size:[4,4],
-        labels:[
-          '家を建築','畑を作る','道を敷く','牧場',
-          '倉庫','自動かまど','装飾ブロック','噴水',
-          'レッドストーン入門','ピストンドア','クロック回路','水流エレベーター',
-          '天空トラップ','ネザー鉄道','メガ建築','ワールドツアー'
-        ],
-        legendary:[12, 15]
-      }
+      starter: { size:[3,4], labels:['木を殴れ！','作業台','木のツール','ベッド','かまど','石のツール','たいまつ','食料を確保','石炭ゲット','革の装備','釣り','ネザーへ…?'], legendary:[0, 11] },
+      adventure: { size:[4,5], labels:['旅の始まり','地図を作成','村を発見','交易','ピリジャー撃退','ネザー要塞','ブレイズロッド','エンダーパール','要塞発見','ポータル起動','エンドへ','クリスタル破壊','帰還','エリトラ入手','ビーコン'], legendary:[10, 14] },
+      builder: { size:[4,4], labels:['家を建築','畑を作る','道を敷く','牧場','倉庫','自動かまど','装飾ブロック','噴水','レッドストーン入門','ピストンドア','クロック回路','水流エレベーター','天空トラップ','ネザー鉄道','メガ建築','ワールドツアー'], legendary:[12, 15] }
     };
 
-    // 状態
     let R = 4, C = 5;
     let labels = [];
     let legendary = new Set();
 
     function buildGrid(r=R, c=C, givenLabels=null) {
       R = r; C = c;
-      cellsEl.style.gridTemplateColumns = `repeat(${C}, minmax(70px, 1fr))`;
+      cellsEl.style.gridTemplateColumns = `repeat(${C}, minmax(50px, 1fr))`; // ← min 50px に変更
       labels = givenLabels && givenLabels.length ? givenLabels.slice(0, r*c) : Array.from({length: r*c}, (_,i)=>`実績 ${i+1}`);
-      // 拡張: 足りないラベルは自動付与
       while (labels.length < r*c) labels.push(`実績 ${labels.length+1}`);
 
       cellsEl.innerHTML = '';
@@ -193,12 +160,10 @@
         btn.type = 'button';
         btn.dataset.idx = i;
         btn.setAttribute('aria-pressed', 'false');
-        btn.title = 'クリックで切り替え';
         if (legendary.has(i)) btn.classList.add('legendary');
         btn.innerHTML = `<span class="badge">#${(i+1)}</span><span class="label"></span>`;
         btn.querySelector('.label').textContent = labels[i];
         btn.addEventListener('click', () => toggle(btn));
-        btn.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(btn); }});
         cell.appendChild(btn);
         cellsEl.appendChild(cell);
       }
@@ -225,30 +190,28 @@
 
     function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
-    // 保存／読込（localStorage）
     const KEY = 'mc_like_achievements_v1';
     function save(){
       const litIndices = Array.from(cellsEl.querySelectorAll('button.lit')).map(b=>+b.dataset.idx);
       const data = { R, C, labels, legendary:[...legendary], lit: litIndices };
       localStorage.setItem(KEY, JSON.stringify(data));
-      toast('保存しました');
+      alert('保存しました');
     }
     function load(){
       const raw = localStorage.getItem(KEY);
-      if (!raw) { toast('保存データがありません'); return; }
+      if (!raw) { alert('保存データがありません'); return; }
       try {
         const data = JSON.parse(raw);
         R = data.R; C = data.C; labels = data.labels || []; legendary = new Set(data.legendary || []);
         rowsEl.value = R; colsEl.value = C;
         buildGrid(R, C, labels);
-        // 点灯復元
         for (const idx of data.lit || []) {
           const btn = cellsEl.querySelector(`button[data-idx="${idx}"]`);
           if (btn) { btn.classList.add('lit'); btn.setAttribute('aria-pressed','true'); }
         }
         updateCounts();
-        toast('読込完了');
-      } catch(e){ toast('読込に失敗しました'); }
+        alert('読込完了');
+      } catch(e){ alert('読込に失敗しました'); }
     }
 
     function resetAll(){
@@ -263,34 +226,14 @@
       buildGrid(p.size[0], p.size[1], p.labels);
     }
 
-    // ちょっとしたトースト
-    let toastTimer = null;
-    function toast(msg){
-      clearTimeout(toastTimer);
-      let el = document.getElementById('toast');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'toast';
-        Object.assign(el.style, {
-          position:'fixed', left:'50%', bottom:'28px', transform:'translateX(-50%)',
-          background:'#11161c', color:'var(--text)', border:'1px solid var(--border)', padding:'10px 14px', borderRadius:'12px',
-          boxShadow:'0 6px 22px rgba(0,0,0,.35)', opacity:'0', transition:'opacity .2s ease', zIndex:9999
-        });
-        document.body.appendChild(el);
-      }
-      el.textContent = msg; el.style.opacity = '1';
-      toastTimer = setTimeout(()=>{ el.style.opacity = '0'; }, 1100);
-    }
-
-    // イベント
     applyBtn.addEventListener('click', applySizeFromInputs);
     resetBtn.addEventListener('click', resetAll);
     saveBtn.addEventListener('click', save);
     loadBtn.addEventListener('click', load);
     presetEl.addEventListener('change', (e)=>{ if (e.target.value) usePreset(e.target.value); });
 
-    // 初期描画
     buildGrid(R, C, labels);
   </script>
 </body>
 </html>
+
