@@ -1,2 +1,0 @@
-# jisseki-game
-complete-game
